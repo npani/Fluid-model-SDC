@@ -19,14 +19,7 @@ def fluid_ode(x_n, t, params):
 
 # coupled differential equations with minimum and maximum bound
 def fluid_ode_min_max(x_n, t, params):
-    w, T, T_flow, B, b, gamma,loss_model,x_min, x_max = params
-    
-    for i in range(len(x_n)):
-        if(x_n[i] < x_min[i]):
-            x_n[i] = x_min[i]
-        if(x_n[i] > x_max[i]):
-            x_n[i] =  x_max[i]
-            
+    w, T, T_flow, B, b, gamma,loss_model,x_min, x_max = params            
     if(loss_model == 'QLB'):    
         p = get_link_congestion_prob_QLB(x_n,B,b,T)
     else:    
@@ -34,8 +27,15 @@ def fluid_ode_min_max(x_n, t, params):
     P = get_slice_congestion_prob(p.reshape(no_of_links, 1), T_flow)   
     P = np.squeeze(P)
     result = gamma*(x_n*(((1-P)*w) - (P*x_n)))
+    result_new = np.zeros(len(result))    
+    for i in range(len(result)):
+        result_new[i] = result[i]
+        if(x_n[i]+result[i] < x_min[i]):
+            result_new[i] = x_min[i]-x_n[i]
+        if(x_n[i]+result[i] > x_max[i]):
+            result_new[i] =  x_max[i]-x_n[i]
     
-    return result
+    return result_new
 
 def get_slice_congestion_prob(p, T_flow):
     r = (1-p)*T_flow
