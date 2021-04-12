@@ -58,6 +58,22 @@ def get_link_congestion_prob_TB(X,B,b,T):
             
     return link_xs
 
+def get_goodput(t, xsol,params,topo):
+    w, T, T_flow, B, b, gamma,loss_model,x_min, x_max = params
+    xsol_goodput = []
+    for t1, x1 in zip(t, xsol):        
+        if(loss_model == 'QLB'):    
+            p = get_link_congestion_prob_QLB(x1,B,b,T)
+        else:    
+            p = get_link_congestion_prob_TB(x1,B,b,T)
+        P = get_slice_congestion_prob(p.reshape(no_of_links, 1), T_flow)   
+        P = np.squeeze(P)
+        
+        goodput = (1-P)*x1
+        xsol_goodput.append(goodput)      
+        
+    return xsol_goodput
+
 def plot_rates(t, xsol,loss_model,b, gamma,ids, topo):
     y1 = []
     y2 = []
@@ -157,6 +173,9 @@ x_max = np.array([float("inf"),float("inf"),float("inf")])
 p = (w, np.array(T), np.array(T_flow), B, b, gamma, loss_model, x_min, x_max)
 # Differential equation solution evaluated at each element of t 
 xsol = odeint(fluid_ode_min_max, x_init, t, args=(p,),atol=abserr, rtol=relerr)
+
+# Goodput = (1-P)*xsol; P: Slice congestion probabilities
+xsol_goodput = get_goodput(t, xsol,p,topo)
 
 # Plot the rate as a function of time and return converged rate
 x_converged = plot_rates(t, xsol,loss_model,b, gamma,ids, topo)    
