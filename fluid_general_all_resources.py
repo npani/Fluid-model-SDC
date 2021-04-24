@@ -132,17 +132,21 @@ b = 100
 gamma = 0.1
 # Price function models: choose between 'QLB' and 'TB'; For now no physical interpretation for 'QLB'
 loss_model = 'TB'
-    
+
+# Flow to resource mapping: 3 communication + 1 data base flow
 T = [[1, 0, 1,1],[1 ,1 ,0,0], [0,1,1,0],[0,0,0,1]]
+
+# Multiplier for each flow along each resource
 multiplier = [[1, 0, 1,0.048],[1 ,1 ,0,0], [0,1,1,0],[0,0,0,0.001]]
         
-# Total number of resources    
+# Total number of resources: 3 communication + 1 processing    
 no_of_links =len(T)
 # Total number of flows
 no_of_flows = len(T[0])
-# capacities of each resource
+# capacities of each resource: 3 communication + 1 processing   
 B = [34,34,34,5]
 
+# Rates from global controller: 3 communication + 1 data base flow rate
 x_init = np.array([16.974917677377771, 8.974917677380578, 9.025082322620060, 100])
 # w values from global controller for each flow
 w = np.array([1, 1, 1, 7.999999999999885])
